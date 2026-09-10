@@ -1,0 +1,1 @@
+"""Error analysis package for GitAssist."""

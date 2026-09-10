@@ -1,0 +1,1 @@
+"""GitAssist: a smart and security-aware Git assistant."""

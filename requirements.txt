@@ -1,0 +1,3 @@
+# GitAssist core uses only Python standard library.
+# No mandatory external dependencies.
+# Optional dependencies are in requirements-optional.txt

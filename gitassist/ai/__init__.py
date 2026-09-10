@@ -1,0 +1,1 @@
+"""Optional AI assistant package for GitAssist."""

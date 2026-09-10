@@ -1,0 +1,1 @@
+"""Localization package for GitAssist."""
