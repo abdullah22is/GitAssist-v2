@@ -13,12 +13,72 @@ if sys.platform == "win32":
         pass
 
 from gitassist.cli import output
+from gitassist.cli.input_handler import ask_input
 from gitassist.git import repository
 from gitassist.core.menu import show_main_menu
 from gitassist.core import commands
 from gitassist.core.suggestions import suggest_next_step
 from gitassist.cli.language import choose_language
 from gitassist.localization.texts import get_text
+
+
+def choose_project() -> bool:
+    """
+    Present an initial project selection menu.
+    Returns True if the user wants to continue with the current directory,
+    False if they want to exit.
+    """
+    in_repo = repository.is_git_repo()
+
+    output.print_title(get_text("project_selection_title"))
+
+    options = []
+    keys = []
+
+    if in_repo:
+        options.append(get_text("use_current_project"))
+        keys.append("current")
+    options.append(get_text("create_new_project"))
+    keys.append("new")
+    options.append(get_text("open_existing_project"))
+    keys.append("open")
+    options.append(get_text("clone_repository"))
+    keys.append("clone")
+    options.append(get_text("exit"))
+    keys.append("exit")
+
+    for i, opt in enumerate(options, start=1):
+        print(f"{i}. {opt}")
+
+    choice = ask_input(get_text("menu_prompt"), allow_empty=False)
+
+    try:
+        idx = int(choice) - 1
+    except ValueError:
+        output.print_error(get_text("please_enter_number"))
+        return choose_project()
+
+    if idx < 0 or idx >= len(options):
+        output.print_error(get_text("invalid_choice"))
+        return choose_project()
+
+    selected_key = keys[idx]
+
+    if selected_key == "exit":
+        output.print_info(get_text("exit_message"))
+        return False
+    elif selected_key == "new":
+        commands.create_new_project()
+        return True
+    elif selected_key == "open":
+        commands.open_existing_project()
+        return True
+    elif selected_key == "clone":
+        commands.clone_repository()
+        return True
+
+    # "current" — continue with the current directory
+    return True
 
 
 def main() -> int:
@@ -31,6 +91,10 @@ def main() -> int:
         return 1
 
     output.print_success("git_installed")
+
+    # Initial project selection — runs once at startup
+    if not choose_project():
+        return 0
 
     while True:
         action = show_main_menu()

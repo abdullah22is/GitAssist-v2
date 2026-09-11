@@ -395,6 +395,13 @@ TEXTS = {
     },    "allow_unrelated_prompt": {
         "en": "Pull failed. Try again with --allow-unrelated-histories?",
         "ar": "فشل السحب. هل تريد المحاولة مع --allow-unrelated-histories؟"
+    },    "project_selection_title": {
+        "en": "Project Selection",
+        "ar": "اختيار المشروع"
+    },
+    "use_current_project": {
+        "en": "Work on current directory",
+        "ar": "العمل على المجلد الحالي"
     },
 }
 
