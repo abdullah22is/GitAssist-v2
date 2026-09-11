@@ -12,6 +12,7 @@ from gitassist.git import sync as sync_ops
 from gitassist.git.executor import run_git_command
 from gitassist.core.manual_command import manual_command_mode
 from gitassist.core import files as file_ops
+from gitassist.core import suggestions as next_step
 from gitassist.github import manager as github_manager
 from gitassist.localization.texts import get_text
 
@@ -87,6 +88,7 @@ def show_status():
 
 
 def save_changes():
+    """Deprecated: kept for backward compatibility."""
     if not repository.has_uncommitted_changes():
         output.print_info(get_text("uncommitted_changes_no"))
         return
@@ -105,19 +107,85 @@ def save_changes():
     run_git_command(["git", "commit", "-m", message], get_text("committing_changes"))
 
 
+def stage_changes():
+    """Stage changes without creating a commit. Only executes git add."""
+    if not repository.has_uncommitted_changes():
+        output.print_info(get_text("uncommitted_changes_no"))
+        return
+
+    add_all = ask_yes_no(get_text("stage_all_prompt"))
+
+    if add_all:
+        run_git_command(
+            ["git", "add", "."],
+            get_text("staging_all"),
+        )
+        return
+
+    file_path = ask_input(get_text("file_to_stage"))
+
+    if not file_path:
+        output.print_warning(get_text("input_empty"))
+        return
+
+    run_git_command(
+        ["git", "add", file_path],
+        get_text("staging_file", file=file_path),
+    )
+
+
+def commit_changes():
+    """Create a commit from already-staged changes. Does not run git add."""
+    summary = repository.get_working_tree_summary()
+    staged_count = summary.get("staged", 0)
+
+    if staged_count == 0:
+        output.print_warning(get_text("nothing_staged_for_commit"))
+        output.print_info(get_text("stage_first_hint"))
+        return
+
+    message = ask_input(get_text("commit_message_prompt"))
+
+    if not message:
+        output.print_warning(get_text("input_empty"))
+        return
+
+    success = run_git_command(
+        ["git", "commit", "-m", message],
+        get_text("committing_changes"),
+    )
+
+    if success:
+        output.print_success(get_text("commit_completed"))
+        suggestion = next_step.suggest_after("commit")
+        if suggestion:
+            output.print_info(suggestion)
+
+
 def show_log():
     run_git_command(["git", "log", "--oneline", "--graph", "--decorate", "--all"], get_text("fetching_history"))
 
 
 def manage_branches():
+    """Branch management submenu with git command hints."""
     while True:
         output.print_title(get_text("branch_management"))
-        print("1. " + get_text("list_branches"))
-        print("2. " + get_text("create_branch"))
-        print("3. " + get_text("switch_branch"))
-        print("4. " + get_text("delete_branch"))
-        print("5. " + get_text("merge_branch"))
-        print("0. " + get_text("back_to_main"))
+
+        menu = [
+            (get_text("list_branches"), "git branch"),
+            (get_text("create_branch"), "git branch <name>"),
+            (get_text("switch_branch"), "git switch <name>"),
+            (get_text("delete_branch"), "git branch -d <name>"),
+            (get_text("merge_branch"), "git merge <name>"),
+            (get_text("back_to_main"), ""),
+        ]
+
+        for index, (label, cmd) in enumerate(menu, start=1):
+            num = index if index < len(menu) else 0
+            if cmd:
+                print(f"{num}. {label} ({cmd})")
+            else:
+                print(f"{num}. {label}")
 
         choice = ask_input(get_text("menu_prompt"), allow_empty=False)
 
@@ -160,14 +228,25 @@ def manage_branches():
 
 
 def manage_stash():
+    """Stash management submenu with git command hints."""
     while True:
         output.print_title(get_text("stash_management"))
-        print("1. " + get_text("stash_save"))
-        print("2. " + get_text("stash_list"))
-        print("3. " + get_text("stash_apply"))
-        print("4. " + get_text("stash_pop"))
-        print("5. " + get_text("stash_drop"))
-        print("0. " + get_text("back_to_main"))
+
+        menu = [
+            (get_text("stash_save"), "git stash push -u"),
+            (get_text("stash_list"), "git stash list"),
+            (get_text("stash_apply"), "git stash apply"),
+            (get_text("stash_pop"), "git stash pop"),
+            (get_text("stash_drop"), "git stash drop"),
+            (get_text("back_to_main"), ""),
+        ]
+
+        for index, (label, cmd) in enumerate(menu, start=1):
+            num = index if index < len(menu) else 0
+            if cmd:
+                print(f"{num}. {label} ({cmd})")
+            else:
+                print(f"{num}. {label}")
 
         choice = ask_input(get_text("menu_prompt"), allow_empty=False)
 
@@ -207,13 +286,24 @@ def manage_stash():
 
 
 def manage_files():
+    """File management submenu with filesystem hints."""
     while True:
         output.print_title(get_text("file_management"))
-        print("1. " + get_text("create_file"))
-        print("2. " + get_text("edit_file"))
-        print("3. " + get_text("delete_file"))
-        print("4. " + get_text("create_directory"))
-        print("0. " + get_text("back_to_main"))
+
+        menu = [
+            (get_text("create_file"), "filesystem"),
+            (get_text("edit_file"), "filesystem"),
+            (get_text("delete_file"), "filesystem"),
+            (get_text("create_directory"), "filesystem"),
+            (get_text("back_to_main"), ""),
+        ]
+
+        for index, (label, cmd) in enumerate(menu, start=1):
+            num = index if index < len(menu) else 0
+            if cmd:
+                print(f"{num}. {label} ({cmd})")
+            else:
+                print(f"{num}. {label}")
 
         choice = ask_input(get_text("menu_prompt"), allow_empty=False)
 
@@ -233,13 +323,24 @@ def manage_files():
 
 
 def manage_sync():
+    """Synchronization submenu with git command hints."""
     while True:
         output.print_title(get_text("synchronize"))
-        print("1. " + get_text("sync_fetch"))
-        print("2. " + get_text("sync_pull"))
-        print("3. " + get_text("sync_push"))
-        print("4. " + get_text("check_updates"))
-        print("0. " + get_text("back_to_main"))
+
+        menu = [
+            (get_text("sync_fetch"), "git fetch"),
+            (get_text("sync_pull"), "git pull"),
+            (get_text("sync_push"), "git push"),
+            (get_text("check_updates"), "git fetch + git rev-list"),
+            (get_text("back_to_main"), ""),
+        ]
+
+        for index, (label, cmd) in enumerate(menu, start=1):
+            num = index if index < len(menu) else 0
+            if cmd:
+                print(f"{num}. {label} ({cmd})")
+            else:
+                print(f"{num}. {label}")
 
         choice = ask_input(get_text("menu_prompt"), allow_empty=False)
 
@@ -256,7 +357,6 @@ def manage_sync():
                         print(f"  - {f}")
                     output.print_info(get_text("resolve_conflicts"))
             else:
-                # Pull failed - possibly due to unrelated histories
                 if ask_yes_no(get_text("allow_unrelated_prompt"), default=False):
                     if sync_ops.pull(allow_unrelated=True):
                         output.print_success(get_text("pull_completed"))
@@ -279,13 +379,26 @@ def manage_sync():
         else:
             output.print_error(get_text("invalid_choice"))
         output.print_line()
+
+
 def manage_github():
+    """GitHub submenu with command hints."""
     while True:
         output.print_title(get_text("github_management"))
-        print("1. " + get_text("show_remote_details"))
-        print("2. " + get_text("open_browser"))
-        print("3. " + get_text("create_github_repo"))
-        print("0. " + get_text("back_to_main"))
+
+        menu = [
+            (get_text("show_remote_details"), "git remote -v"),
+            (get_text("open_browser"), "webbrowser"),
+            (get_text("create_github_repo"), "GitHub API"),
+            (get_text("back_to_main"), ""),
+        ]
+
+        for index, (label, cmd) in enumerate(menu, start=1):
+            num = index if index < len(menu) else 0
+            if cmd:
+                print(f"{num}. {label} ({cmd})")
+            else:
+                print(f"{num}. {label}")
 
         choice = ask_input(get_text("menu_prompt"), allow_empty=False)
 

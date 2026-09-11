@@ -23,11 +23,7 @@ from gitassist.localization.texts import get_text
 
 
 def choose_project() -> bool:
-    """
-    Present an initial project selection menu.
-    Returns True if the user wants to continue with the current directory,
-    False if they want to exit.
-    """
+    """Initial project selection menu."""
     in_repo = repository.is_git_repo()
 
     output.print_title(get_text("project_selection_title"))
@@ -77,7 +73,6 @@ def choose_project() -> bool:
         commands.clone_repository()
         return True
 
-    # "current" — continue with the current directory
     return True
 
 
@@ -92,7 +87,6 @@ def main() -> int:
 
     output.print_success("git_installed")
 
-    # Initial project selection — runs once at startup
     if not choose_project():
         return 0
 
@@ -109,6 +103,10 @@ def main() -> int:
             commands.clone_repository()
         elif action == "status":
             commands.show_status()
+        elif action == "stage":
+            commands.stage_changes()
+        elif action == "commit":
+            commands.commit_changes()
         elif action == "save":
             commands.save_changes()
         elif action == "log":

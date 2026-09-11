@@ -402,6 +402,81 @@ TEXTS = {
     "use_current_project": {
         "en": "Work on current directory",
         "ar": "العمل على المجلد الحالي"
+    },    # Project selection
+    "project_selection_title": {
+        "en": "Project Selection",
+        "ar": "اختيار المشروع"
+    },
+    "use_current_project": {
+        "en": "Work on current directory",
+        "ar": "العمل على المجلد الحالي"
+    },
+
+    # Stage / Commit (separate)
+    "stage_changes": {
+        "en": "Stage changes",
+        "ar": "تجهيز التغييرات (git add)",
+    },
+    "commit_changes": {
+        "en": "Commit staged changes",
+        "ar": "حفظ التغييرات المجهزة (git commit)",
+    },
+    "stage_all_prompt": {
+        "en": "Stage all changes with 'git add .'?",
+        "ar": "هل تريد تجهيز كل التغييرات باستخدام 'git add .'؟",
+    },
+    "file_to_stage": {
+        "en": "Enter the file path to stage:",
+        "ar": "أدخل مسار الملف الذي تريد تجهيزه:",
+    },
+    "staging_all": {
+        "en": "Staging all changes...",
+        "ar": "جارٍ تجهيز جميع التغييرات باستخدام git add...",
+    },
+    "staging_file": {
+        "en": "Staging file: {file}",
+        "ar": "جارٍ تجهيز الملف: {file}",
+    },
+    "nothing_staged_for_commit": {
+        "en": "Nothing is staged for commit.",
+        "ar": "لا توجد تغييرات مجهزة لإنشاء Commit لها.",
+    },
+    "stage_first_hint": {
+        "en": "Run Stage changes first, then Commit staged changes.",
+        "ar": "نفّذ تجهيز التغييرات أولًا باستخدام git add، ثم نفّذ Commit باستخدام git commit.",
+    },
+    "commit_message_prompt": {
+        "en": "Commit message:",
+        "ar": "رسالة الالتزام (commit):",
+    },
+    "committing_changes": {
+        "en": "Committing staged changes...",
+        "ar": "جارٍ تنفيذ الالتزام للتغييرات المجهزة...",
+    },
+    "commit_completed": {
+        "en": "Commit created successfully.",
+        "ar": "تم إنشاء Commit بنجاح.",
+    },
+
+    # Suggestions after actions
+    "suggest_push_after_commit": {
+        "en": "Suggestion: Push changes to remote.",
+        "ar": "اقتراح: ارفع التغييرات إلى المستودع البعيد.",
+    },
+    "suggest_add_remote_after_commit": {
+        "en": "Suggestion: Add a remote repository.",
+        "ar": "اقتراح: أضف مستودعًا بعيدًا.",
+    },
+    "suggest_commit_after_stage": {
+        "en": "Suggestion: Commit staged changes.",
+        "ar": "اقتراح: نفّذ Commit للتغييرات المجهزة.",
+    },
+    "suggest_stage_after_init": {
+        "en": "Suggestion: Stage changes with 'git add'.",
+        "ar": "اقتراح: جهّز التغييرات باستخدام 'git add'.",
+    },    "review_changes": {
+        "en": "Review uncommitted changes",
+        "ar": "مراجعة التغييرات غير المحفوظة",
     },
 }
 
